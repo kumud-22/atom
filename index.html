@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Atom Explorer - Interactive 3D Educational Visualization</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+    <!-- Main 3D Canvas -->
+    <div id="canvas-container"></div>
+
+    <!-- Exhibition Mode Toggle -->
+    <button id="exhibition-mode-btn" class="top-btn exhibition-btn" title="Enter Exhibition Mode">
+        <span>🎓 EXHIBITION MODE</span>
+    </button>
+
+    <!-- Mode Toggle (Bohr vs Quantum) -->
+    <button id="model-toggle-btn" class="top-btn" title="Toggle between Classical and Quantum views">
+        <span id="model-toggle-text">Quantum View</span>
+    </button>
+
+    <!-- Quality Settings -->
+    <div id="quality-panel" class="control-panel quality-panel">
+        <h3>Quality</h3>
+        <label>
+            <input type="radio" name="quality" value="low" > Low
+        </label>
+        <label>
+            <input type="radio" name="quality" value="medium" checked> Medium
+        </label>
+        <label>
+            <input type="radio" name="quality" value="high"> High
+        </label>
+    </div>
+
+    <!-- Main Control Panel -->
+    <div id="control-panel" class="control-panel main-panel">
+        <!-- Element Selector -->
+        <div class="panel-section">
+            <h2>Element Selector</h2>
+            <input type="text" id="element-search" placeholder="Search element..." class="search-input">
+            <div id="periodic-table" class="periodic-table"></div>
+        </div>
+
+        <!-- Display Options -->
+        <div class="panel-section">
+            <h2>Visualization</h2>
+            <label class="toggle-label">
+                <input type="checkbox" id="show-nucleus" checked>
+                <span>Show Nucleus</span>
+            </label>
+            <label class="toggle-label">
+                <input type="checkbox" id="show-shells" checked>
+                <span>Show Energy Shells</span>
+            </label>
+            <label class="toggle-label">
+                <input type="checkbox" id="show-orbitals" checked>
+                <span>Show Orbitals</span>
+            </label>
+            <label class="toggle-label">
+                <input type="checkbox" id="show-electrons" checked>
+                <span>Show Electrons</span>
+            </label>
+            
+            <div class="slider-container">
+                <label for="probability-slider">Probability Density</label>
+                <input type="range" id="probability-slider" min="0.1" max="2" step="0.1" value="1">
+                <span id="probability-value">1.0</span>
+            </div>
+
+            <div class="slider-container">
+                <label for="opacity-slider">Orbital Opacity</label>
+                <input type="range" id="opacity-slider" min="0.1" max="1" step="0.1" value="0.6">
+                <span id="opacity-value">0.6</span>
+            </div>
+        </div>
+
+        <!-- Camera Controls -->
+        <div class="panel-section">
+            <h2>Camera</h2>
+            <button id="reset-camera-btn" class="control-btn">Reset Camera</button>
+            <button id="pause-animation-btn" class="control-btn">Pause Animation</button>
+            <button id="autorotate-btn" class="control-btn">Auto Rotate: ON</button>
+        </div>
+
+        <!-- Orbital Explorer -->
+        <div class="panel-section">
+            <h2>Explore Orbital</h2>
+            <div id="orbital-buttons" class="orbital-buttons">
+                <!-- Filled by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Quantum Info Panel -->
+        <div class="panel-section">
+            <h2>Quantum Numbers</h2>
+            <div id="quantum-info" class="quantum-info">
+                <p>Select an electron or orbital to see quantum numbers</p>
+            </div>
+        </div>
+
+        <!-- Interactive Learning -->
+        <div class="panel-section">
+            <h2>Learning Mode</h2>
+            <button id="quiz-btn" class="control-btn">Quiz Me!</button>
+            <button id="aufbau-btn" class="control-btn">Aufbau Principle</button>
+            <button id="hund-btn" class="control-btn">Hund's Rule Demo</button>
+            <button id="pauli-btn" class="control-btn">Pauli Exclusion</button>
+        </div>
+
+        <!-- Info Section -->
+        <div class="panel-section">
+            <h2>About</h2>
+            <button id="model-info-btn" class="control-btn">Model Info</button>
+            <button id="wavefunction-btn" class="control-btn">Wavefunction</button>
+            <button id="probability-btn" class="control-btn">Where is the Electron?</button>
+        </div>
+    </div>
+
+    <!-- Right Info Panel -->
+    <div id="info-panel" class="info-panel">
+        <div class="panel-header">
+            <h2 id="info-title">Quantum Atom Explorer</h2>
+            <button id="close-info-btn" class="close-btn">&times;</button>
+        </div>
+        <div id="info-content" class="info-content">
+            <p>Welcome to the Quantum Atom Explorer!</p>
+            <p>Select an element from the periodic table to begin exploring the quantum structure of atoms.</p>
+            <hr>
+            <h3>Controls:</h3>
+            <ul>
+                <li><strong>Rotate:</strong> Click and drag</li>
+                <li><strong>Zoom:</strong> Scroll wheel</li>
+                <li><strong>Pan:</strong> Right-click and drag</li>
+                <li><strong>Click:</strong> Select particles or orbitals</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Modal for Messages -->
+    <div id="modal" class="modal hidden">
+        <div class="modal-content">
+            <button class="modal-close">&times;</button>
+            <h2 id="modal-title">Title</h2>
+            <div id="modal-body"></div>
+            <button id="modal-ok-btn" class="control-btn">OK</button>
+        </div>
+    </div>
+
+    <!-- Exhibition Mode Overlay -->
+    <div id="exhibition-overlay" class="exhibition-overlay hidden">
+        <div class="exhibition-splash">
+            <h1>🌌 Quantum Atom Explorer 🌌</h1>
+            <p>Explore the fascinating world of atoms at the quantum scale</p>
+            <p>Discover how electrons really behave according to modern quantum mechanics</p>
+            <button id="start-exploring-btn" class="exhibition-start-btn">START EXPLORING</button>
+            <div class="exhibition-tips">
+                <h3>Try This:</h3>
+                <ul>
+                    <li>✨ Explore Oxygen and see its electron configuration</li>
+                    <li>🔄 Compare 2s and 2p orbital shapes</li>
+                    <li>⚡ Watch Hund's Rule demonstration</li>
+                    <li>🎲 Discover quantum numbers of electrons</li>
+                    <li>🧬 See how electrons fill orbitals</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-spinner"></div>
+        <p>Loading Quantum Atom Explorer...</p>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
