@@ -1,180 +1,157 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quantum Atom Explorer - Interactive 3D Educational Visualization</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="An interactive 3D explorer for quantum orbitals, electron configurations, and atomic structure." />
+  <title>Quantum Atom Explorer</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <!-- Main 3D Canvas -->
-    <div id="canvas-container"></div>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="Quantum Atom Explorer home">
+        <span class="brand-mark">⚛</span>
+        <span><strong>QUANTUM</strong><small>ATOM EXPLORER</small></span>
+      </a>
+      <div class="topbar-actions">
+        <span class="live-dot"></span><span class="live-label">INTERACTIVE LAB</span>
+        <button id="exhibitionBtn" class="button button-quiet">✦ Exhibition mode</button>
+      </div>
+    </header>
 
-    <!-- Exhibition Mode Toggle -->
-    <button id="exhibition-mode-btn" class="top-btn exhibition-btn" title="Enter Exhibition Mode">
-        <span>🎓 EXHIBITION MODE</span>
-    </button>
-
-    <!-- Mode Toggle (Bohr vs Quantum) -->
-    <button id="model-toggle-btn" class="top-btn" title="Toggle between Classical and Quantum views">
-        <span id="model-toggle-text">Quantum View</span>
-    </button>
-
-    <!-- Quality Settings -->
-    <div id="quality-panel" class="control-panel quality-panel">
-        <h3>Quality</h3>
-        <label>
-            <input type="radio" name="quality" value="low" > Low
-        </label>
-        <label>
-            <input type="radio" name="quality" value="medium" checked> Medium
-        </label>
-        <label>
-            <input type="radio" name="quality" value="high"> High
-        </label>
-    </div>
-
-    <!-- Main Control Panel -->
-    <div id="control-panel" class="control-panel main-panel">
-        <!-- Element Selector -->
-        <div class="panel-section">
-            <h2>Element Selector</h2>
-            <input type="text" id="element-search" placeholder="Search element..." class="search-input">
-            <div id="periodic-table" class="periodic-table"></div>
+    <main>
+      <section class="intro">
+        <div>
+          <p class="eyebrow">A 3D QUANTUM LABORATORY</p>
+          <h1>Meet the atom.<br><span>Think quantum.</span></h1>
+          <p class="intro-copy">Explore shells, subshells and orbitals—and see why an electron is described by probability, not a tiny planetary track.</p>
         </div>
+        <div class="atom-fact">
+          <span class="fact-icon">◎</span>
+          <div><strong id="heroElement">Oxygen · O</strong><small id="heroFact">8 protons · 8 electrons</small></div>
+        </div>
+      </section>
 
-        <!-- Display Options -->
-        <div class="panel-section">
-            <h2>Visualization</h2>
-            <label class="toggle-label">
-                <input type="checkbox" id="show-nucleus" checked>
-                <span>Show Nucleus</span>
-            </label>
-            <label class="toggle-label">
-                <input type="checkbox" id="show-shells" checked>
-                <span>Show Energy Shells</span>
-            </label>
-            <label class="toggle-label">
-                <input type="checkbox" id="show-orbitals" checked>
-                <span>Show Orbitals</span>
-            </label>
-            <label class="toggle-label">
-                <input type="checkbox" id="show-electrons" checked>
-                <span>Show Electrons</span>
-            </label>
-            
-            <div class="slider-container">
-                <label for="probability-slider">Probability Density</label>
-                <input type="range" id="probability-slider" min="0.1" max="2" step="0.1" value="1">
-                <span id="probability-value">1.0</span>
+      <section class="workspace">
+        <div class="visual-panel panel">
+          <div class="panel-heading visual-heading">
+            <div><p class="eyebrow">LIVE 3D MODEL</p><h2 id="visualTitle">Oxygen atom</h2></div>
+            <div class="view-actions">
+              <button id="resetView" class="icon-button" title="Reset camera" aria-label="Reset camera">↺</button>
+              <button id="pauseView" class="icon-button" title="Pause animation" aria-label="Pause animation">Ⅱ</button>
             </div>
-
-            <div class="slider-container">
-                <label for="opacity-slider">Orbital Opacity</label>
-                <input type="range" id="opacity-slider" min="0.1" max="1" step="0.1" value="0.6">
-                <span id="opacity-value">0.6</span>
+          </div>
+          <div id="sceneWrap" class="scene-wrap">
+            <div id="sceneFallback" class="scene-fallback">
+              <div class="fallback-atom"><span></span><i></i><b></b></div>
+              <p>Preparing your quantum view…</p>
             </div>
-        </div>
-
-        <!-- Camera Controls -->
-        <div class="panel-section">
-            <h2>Camera</h2>
-            <button id="reset-camera-btn" class="control-btn">Reset Camera</button>
-            <button id="pause-animation-btn" class="control-btn">Pause Animation</button>
-            <button id="autorotate-btn" class="control-btn">Auto Rotate: ON</button>
-        </div>
-
-        <!-- Orbital Explorer -->
-        <div class="panel-section">
-            <h2>Explore Orbital</h2>
-            <div id="orbital-buttons" class="orbital-buttons">
-                <!-- Filled by JavaScript -->
+            <div class="scene-label label-nucleus">NUCLEUS</div>
+            <div class="scene-label label-cloud">PROBABILITY CLOUD</div>
+            <div class="scene-legend">
+              <span><i class="legend-dot proton"></i> Proton</span>
+              <span><i class="legend-dot neutron"></i> Neutron</span>
+              <span><i class="legend-dot cloud-dot"></i> Electron density</span>
             </div>
+            <div class="drag-hint">↔ Drag to rotate · Scroll to zoom</div>
+          </div>
+          <div class="visual-controls">
+            <label class="control-label" for="viewMode">Visualization</label>
+            <select id="viewMode">
+              <option value="cloud">Probability cloud</option>
+              <option value="orbital">Selected orbital</option>
+              <option value="shells">Energy shells (schematic)</option>
+              <option value="nucleus">Inspect nucleus</option>
+            </select>
+            <label class="control-label" for="quality">Quality</label>
+            <select id="quality">
+              <option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option>
+            </select>
+          </div>
+          <div class="cloud-control">
+            <div class="range-label"><label for="density">Cloud visibility</label><output id="densityValue">65%</output></div>
+            <input id="density" type="range" min="15" max="100" value="65" />
+            <p>Clouds represent probability density—not a photograph or a fixed path.</p>
+          </div>
         </div>
 
-        <!-- Quantum Info Panel -->
-        <div class="panel-section">
-            <h2>Quantum Numbers</h2>
-            <div id="quantum-info" class="quantum-info">
-                <p>Select an electron or orbital to see quantum numbers</p>
+        <aside class="side-column">
+          <section class="panel element-panel">
+            <div class="panel-heading"><div><p class="eyebrow">01 / CHOOSE AN ELEMENT</p><h2>Periodic explorer</h2></div></div>
+            <label class="sr-only" for="elementSelect">Choose element</label>
+            <select id="elementSelect"></select>
+            <div class="element-summary">
+              <div class="element-symbol" id="elementSymbol">O</div>
+              <div><h3 id="elementName">Oxygen</h3><p id="elementMeta">Atomic number 8 · Approx. mass 16</p></div>
             </div>
-        </div>
-
-        <!-- Interactive Learning -->
-        <div class="panel-section">
-            <h2>Learning Mode</h2>
-            <button id="quiz-btn" class="control-btn">Quiz Me!</button>
-            <button id="aufbau-btn" class="control-btn">Aufbau Principle</button>
-            <button id="hund-btn" class="control-btn">Hund's Rule Demo</button>
-            <button id="pauli-btn" class="control-btn">Pauli Exclusion</button>
-        </div>
-
-        <!-- Info Section -->
-        <div class="panel-section">
-            <h2>About</h2>
-            <button id="model-info-btn" class="control-btn">Model Info</button>
-            <button id="wavefunction-btn" class="control-btn">Wavefunction</button>
-            <button id="probability-btn" class="control-btn">Where is the Electron?</button>
-        </div>
-    </div>
-
-    <!-- Right Info Panel -->
-    <div id="info-panel" class="info-panel">
-        <div class="panel-header">
-            <h2 id="info-title">Quantum Atom Explorer</h2>
-            <button id="close-info-btn" class="close-btn">&times;</button>
-        </div>
-        <div id="info-content" class="info-content">
-            <p>Welcome to the Quantum Atom Explorer!</p>
-            <p>Select an element from the periodic table to begin exploring the quantum structure of atoms.</p>
-            <hr>
-            <h3>Controls:</h3>
-            <ul>
-                <li><strong>Rotate:</strong> Click and drag</li>
-                <li><strong>Zoom:</strong> Scroll wheel</li>
-                <li><strong>Pan:</strong> Right-click and drag</li>
-                <li><strong>Click:</strong> Select particles or orbitals</li>
-            </ul>
-        </div>
-    </div>
-
-    <!-- Modal for Messages -->
-    <div id="modal" class="modal hidden">
-        <div class="modal-content">
-            <button class="modal-close">&times;</button>
-            <h2 id="modal-title">Title</h2>
-            <div id="modal-body"></div>
-            <button id="modal-ok-btn" class="control-btn">OK</button>
-        </div>
-    </div>
-
-    <!-- Exhibition Mode Overlay -->
-    <div id="exhibition-overlay" class="exhibition-overlay hidden">
-        <div class="exhibition-splash">
-            <h1>🌌 Quantum Atom Explorer 🌌</h1>
-            <p>Explore the fascinating world of atoms at the quantum scale</p>
-            <p>Discover how electrons really behave according to modern quantum mechanics</p>
-            <button id="start-exploring-btn" class="exhibition-start-btn">START EXPLORING</button>
-            <div class="exhibition-tips">
-                <h3>Try This:</h3>
-                <ul>
-                    <li>✨ Explore Oxygen and see its electron configuration</li>
-                    <li>🔄 Compare 2s and 2p orbital shapes</li>
-                    <li>⚡ Watch Hund's Rule demonstration</li>
-                    <li>🎲 Discover quantum numbers of electrons</li>
-                    <li>🧬 See how electrons fill orbitals</li>
-                </ul>
+            <div class="mini-stats">
+              <div><small>PROTONS</small><strong id="protonCount">8</strong></div>
+              <div><small>ELECTRONS</small><strong id="electronCount">8</strong></div>
+              <div><small>OCCUPIED SHELLS</small><strong id="shellCount">2</strong></div>
             </div>
-        </div>
-    </div>
+            <div class="config-box"><small>ELECTRON CONFIGURATION</small><p id="configuration">1s² 2s² 2p⁴</p><p class="muted" id="nobleConfig">[He] 2s² 2p⁴</p></div>
+          </section>
 
-    <!-- Loading Screen -->
-    <div id="loading-screen" class="loading-screen">
-        <div class="loading-spinner"></div>
-        <p>Loading Quantum Atom Explorer...</p>
-    </div>
+          <section class="panel explorer-panel">
+            <div class="panel-heading"><div><p class="eyebrow">02 / ORBITAL EXPLORER</p><h2>Choose a region</h2></div></div>
+            <div class="orbital-buttons" id="orbitalButtons">
+              <button data-orbital="1s">1s</button><button data-orbital="2s">2s</button>
+              <button data-orbital="2px">2pₓ</button><button data-orbital="2py">2pᵧ</button><button data-orbital="2pz">2p𝓏</button>
+              <button data-orbital="3s">3s</button><button data-orbital="3dxy">3dₓᵧ</button><button data-orbital="3dz2">3d𝓏²</button>
+            </div>
+            <div id="orbitalDetails" class="orbital-details">
+              <div class="detail-title"><span class="orbital-icon">✧</span><div><h3>2p orbital</h3><small>DUMBBELL-SHAPED</small></div></div>
+              <p>Select an orbital to inspect its shape, quantum numbers and electron capacity.</p>
+            </div>
+          </section>
+        </aside>
+      </section>
 
-    <script src="script.js"></script>
+      <section class="lower-grid">
+        <section class="panel concept-panel">
+          <div class="panel-heading"><div><p class="eyebrow">03 / QUANTUM BASICS</p><h2>From shell to quantum state</h2></div></div>
+          <div class="hierarchy">
+            <button class="hierarchy-item active" data-concept="shell"><span class="hierarchy-number">01</span><span><strong>Shell</strong><small>Principal energy level · n</small></span><span>›</span></button>
+            <button class="hierarchy-item" data-concept="subshell"><span class="hierarchy-number">02</span><span><strong>Subshell</strong><small>Orbital angular momentum · ℓ</small></span><span>›</span></button>
+            <button class="hierarchy-item" data-concept="orbital"><span class="hierarchy-number">03</span><span><strong>Orbital</strong><small>Quantum state / spatial pattern</small></span><span>›</span></button>
+            <button class="hierarchy-item" data-concept="electron"><span class="hierarchy-number">04</span><span><strong>Electron</strong><small>Spin state · mₛ</small></span><span>›</span></button>
+          </div>
+          <div id="conceptText" class="concept-text"><h3>Shell</h3><p>A shell groups states with the same principal quantum number <strong>n</strong>. In this simplified model, shell n can hold up to 2n² electrons.</p></div>
+        </section>
+
+        <section class="panel rules-panel">
+          <div class="panel-heading"><div><p class="eyebrow">04 / ELECTRON FILLING</p><h2>Quantum rules in action</h2></div></div>
+          <div class="rule-tabs">
+            <button class="rule-tab active" data-rule="aufbau">Aufbau</button>
+            <button class="rule-tab" data-rule="hund">Hund's rule</button>
+            <button class="rule-tab" data-rule="pauli">Pauli</button>
+          </div>
+          <div id="ruleContent" class="rule-content">
+            <div class="rule-visual" id="ruleVisual"><span>1s</span><span>2s</span><span>2p</span><span>3s</span></div>
+            <h3>Build from lower energy</h3><p>Electrons generally occupy available lower-energy states first. Real atoms have exceptions, so this is a useful rule—not a perfect universal shortcut.</p>
+            <button id="demoRule" class="button button-primary">▶ Run mini demo</button>
+          </div>
+        </section>
+
+        <section class="panel quiz-panel">
+          <div class="panel-heading"><div><p class="eyebrow">05 / TEST YOURSELF</p><h2>Quick quantum quiz</h2></div><span class="quiz-score">SCORE <strong id="score">0</strong></span></div>
+          <p id="quizQuestion" class="quiz-question">How many orbitals are in a p subshell?</p>
+          <div id="quizOptions" class="quiz-options">
+            <button data-answer="1">1</button><button data-answer="3">3</button><button data-answer="5">5</button><button data-answer="7">7</button>
+          </div>
+          <p id="quizFeedback" class="quiz-feedback" aria-live="polite">Choose an answer to check your understanding.</p>
+          <button id="nextQuestion" class="button button-quiet">Next question →</button>
+        </section>
+      </section>
+
+      <section class="science-note">
+        <span>ⓘ</span><p><strong>Model note:</strong> This interactive is a learning aid. The 3D clouds are stylized approximations of quantum probability distributions; the shell view is schematic, and the nucleus is not drawn to scale.</p>
+      </section>
+    </main>
+    <footer><span>QUANTUM ATOM EXPLORER</span><span>Built for curiosity, powered by science ⚛</span></footer>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
